@@ -4,31 +4,37 @@
 <h1 align="center">👩‍🏭 worker-plugin</h1>
 <p align="center">Automatically bundle & compile Web Workers within Webpack.</p>
 
+### Fork changes
+
+The following changes have been applied to the original plugin:
+
+- The check if `{ type: "module" }` has been passed to the `new Worker()` has been dropped
+- The generated default worker name contains a `-worker` suffix to avoid chunk name collisions with chunks not created by this plugin
 
 ### Features
 
 Automatically compiles modules loaded in Web Workers:
 
 ```js
-const worker = new Worker('./foo.js', { type: 'module' });
+const worker = new Worker('./foo.js');
                           ^^^^^^^^^^
                           gets bundled using webpack
 ```
 
 The best part? That worker constructor works just fine without bundling turned on too.
 
-Workers created from Blob & data URLs or without the `{ type:'module' }` option are left unchanged.
+Workers created from Blob & data URLs are left unchanged.
 
 ## Installation
 
 ```sh
-npm install -D worker-plugin
+npm install -D @satoshipay/worker-plugin
 ```
 
 Then drop it into your **webpack.config.js:**
 
 ```diff
-+ const WorkerPlugin = require('worker-plugin');
++ const WorkerPlugin = require('@satoshipay/worker-plugin');
 
 module.exports = {
   <...>
@@ -55,7 +61,7 @@ addEventListener('message', event => {
 **main.js**: _(our demo, on the main thread)_
 
 ```js
-const piWorker = new Worker('./worker.js', { type: 'module' });
+const piWorker = new Worker('./worker.js');
 piWorker.onmessage = event => {
   console.log('pi: ' + event.data);
 };
@@ -105,7 +111,7 @@ module.exports = {
       plugins: [
         // A string here will copy the named plugin from your configuration:
         'SomeExistingPlugin',
-        
+
         // Or you can specify a plugin directly, only applied to Worker code:
         new SomePluginToApplyOnlyToWorkers({ <...> })
       ]

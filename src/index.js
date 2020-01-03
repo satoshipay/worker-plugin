@@ -45,9 +45,8 @@ export default class WorkerPlugin {
 
             const optsExpr = expr.arguments[1];
             let typeModuleExpr;
-            let opts;
+            let opts = {};
             if (optsExpr) {
-              opts = {};
               for (let i = optsExpr.properties.length; i--;) {
                 const prop = optsExpr.properties[i];
                 if (prop.type === 'Property' && !prop.computed && !prop.shorthand && !prop.method) {
@@ -60,14 +59,7 @@ export default class WorkerPlugin {
               }
             }
 
-            if (!opts || opts.type !== 'module') {
-              parser.state.module.warnings.push({
-                message: `new Worker() will only be bundled if passed options that include { type: 'module' }.${opts ? `\n  Received: new Worker(${JSON.stringify(dep.string)}, ${JSON.stringify(opts)})` : ''}`
-              });
-              return false;
-            }
-
-            const loaderOptions = { name: opts.name || workerId + '' };
+            const loaderOptions = { name: opts.name || workerId + '-worker' };
             const req = `require(${JSON.stringify(workerLoader + '?' + JSON.stringify(loaderOptions) + '!' + dep.string)})`;
             const id = `__webpack__worker__${workerId++}`;
             ParserHelpers.toConstantDependency(parser, id)(expr.arguments[0]);
